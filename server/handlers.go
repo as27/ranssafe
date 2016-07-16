@@ -1,15 +1,67 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"io"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
+	"github.com/as27/ranssafe/fileinfo"
 	"github.com/gorilla/mux"
+	"github.com/lyckade/gonetsync/file"
 )
 
 // GetFileInfo responses with fileinfos to a package
 func GetFileInfo(w http.ResponseWriter, r *http.Request) {
+	var fileInfos []fileinfo.File
 	vars := mux.Vars(r)
 	pack := vars["package"]
-	fmt.Println(pack)
+
+	rootPath := filepath.Join(
+		filepath.ToSlash(Conf.ServerBackupFolder),
+		pack)
+
+	filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+		f, err := fileinfo.New(path)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fileInfos = append(fileInfos, f)
+		b, err := json.Marshal(fileInfos)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = w.Write(b)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return nil
+	})
+}
+
+// PushFile puts the file to the server
+func PushFile(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pack := vars["package"]
+	filep := vars["filep"]
+	fp := filepath.Join(
+		filepath.ToSlash(Conf.ServerBackupFolder),
+		pack,
+		filep)
+	os.MkdirAll(filepath.Dir(fp), 0777)
+	f, err := os.Create(fp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = io.Copy(f, r.Body)
+	f.Close()
+	r.Body.Close()
+	timets, _ := time.Parse(file.TimestampLayout, r.FormValue("timestamp"))
+	err = os.Chtimes(fp, timets, timets)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

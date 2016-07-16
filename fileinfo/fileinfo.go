@@ -4,6 +4,7 @@ package fileinfo
 
 import (
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -21,7 +22,7 @@ const TimestampLayout string = "20060102150405"
 //New returns a new instance of a File struct.
 func New(fp string) (File, error) {
 	var f File
-	f.FilePath = fp
+	f.FilePath = filepath.ToSlash(fp)
 	var err error
 	f.Timestamp, err = getTimestamp(fp)
 	return f, err
