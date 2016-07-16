@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/as27/ranssafe/fileinfo"
@@ -80,13 +81,25 @@ func (s *Syncer) GetDistFileInfo() ([]fileinfo.File, error) {
 
 // PushFile implements the distsync interface
 func (s *Syncer) PushFile(fpath string) error {
+	// Make URL
+	fi, err := fileinfo.New(fpath)
+	if err != nil {
+		return err
+	}
+	u, err := url.Parse(s.ServerURL + ServerPushPath + fpath)
+	if err != nil {
+		return err
+	}
+	v := url.Values{}
+	v.Set("timestamp", string(fi.Timestamp))
+	u.RawQuery = v.Encode()
 	// Open the local file
 	fileReader, err := os.Open(fpath)
 	defer fileReader.Close()
 	if err != nil {
 		return err
 	}
-	r, err := http.NewRequest("PUT", s.ServerURL+ServerPushPath+fpath, fileReader)
+	r, err := http.NewRequest("PUT", u.String(), fileReader)
 	if err != nil {
 		return err
 	}
