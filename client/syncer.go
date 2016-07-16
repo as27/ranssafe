@@ -90,7 +90,7 @@ func (s *Syncer) PushFile(fpath string) error {
 	if err != nil {
 		return err
 	}
-	_, err := s.client.Do(r)
+	_, err = s.client.Do(r)
 	if err != nil {
 		return err
 	}
