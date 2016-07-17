@@ -1,7 +1,6 @@
 package distsync
 
 import (
-	"io"
 	"reflect"
 	"testing"
 
@@ -42,9 +41,9 @@ func (ds *testDistsyncer) PushFile(fp string) error {
 	return nil
 }
 
-func (ds *testDistsyncer) GetFile(fp string) (io.Writer, error) {
+func (ds *testDistsyncer) GetFile(fp string) error {
 	ds.getFiles = append(ds.getFiles, fp)
-	return nil, nil
+	return nil
 }
 
 // Check the correct implementation

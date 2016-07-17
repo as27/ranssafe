@@ -2,11 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
+
+	"path/filepath"
+
+	"strconv"
 
 	"github.com/as27/ranssafe/fileinfo"
 )
@@ -28,6 +32,7 @@ type Syncer struct {
 	// https://localhost:1234/mypackage
 	ServerURL   string
 	files       []fileinfo.File
+	rootPath    string
 	newFileinfo func(string) (fileinfo.File, error)
 	osOpen      func(name string) (*os.File, error)
 	client      *http.Client
@@ -35,8 +40,10 @@ type Syncer struct {
 
 // NewSyncer takes a serverAdress and returns a pointer to a
 // syncer
-func NewSyncer(serverURL string) *Syncer {
-	s := Syncer{ServerURL: serverURL}
+func NewSyncer(serverURL string, rootPath string) *Syncer {
+	s := Syncer{
+		ServerURL: serverURL,
+		rootPath:  rootPath}
 	s.newFileinfo = fileinfo.New
 	s.osOpen = os.Open
 	s.client = new(http.Client)
@@ -86,13 +93,14 @@ func (s *Syncer) PushFile(fpath string) error {
 	if err != nil {
 		return err
 	}
-	u, err := url.Parse(s.ServerURL + ServerPushPath + fpath)
+	u, err := url.Parse(s.ServerURL + ServerPushPath + "/" + s.relPath(fpath))
 	if err != nil {
 		return err
 	}
 	v := url.Values{}
-	v.Set("timestamp", string(fi.Timestamp))
+	v.Set("timestamp", strconv.Itoa(fi.Timestamp))
 	u.RawQuery = v.Encode()
+	log.Println(u.String())
 	// Open the local file
 	fileReader, err := os.Open(fpath)
 	defer fileReader.Close()
@@ -112,6 +120,14 @@ func (s *Syncer) PushFile(fpath string) error {
 }
 
 // GetFile implements the distsync interface
-func (s *Syncer) GetFile(string) (io.Writer, error) {
-	return nil, nil
+func (s *Syncer) GetFile(string) error {
+	return nil
+}
+
+func (s *Syncer) relPath(fp string) string {
+	rp, err := filepath.Rel(s.rootPath, fp)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return rp
 }

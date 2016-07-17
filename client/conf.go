@@ -21,8 +21,8 @@ type Pack struct {
 
 // Options is the structure of the config file
 type Options struct {
-	ServerPort string `yaml:"ServerPort"`
-	Packages   []Pack `yaml:"Packages"`
+	ServerURL string `yaml:"ServerURL"`
+	Packages  []Pack `yaml:"Packages"`
 }
 
 func init() {

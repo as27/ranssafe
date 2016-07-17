@@ -23,23 +23,30 @@ func GetFileInfo(w http.ResponseWriter, r *http.Request) {
 	rootPath := filepath.Join(
 		filepath.ToSlash(Conf.ServerBackupFolder),
 		pack)
+	log.Println("Walk for: " + rootPath)
+	_, err := os.Stat(rootPath)
+	if os.IsExist(err) {
+		filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+			if info.IsDir() {
+				return nil
+			}
+			f, err := fileinfo.New(path)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fileInfos = append(fileInfos, f)
 
-	filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
-		f, err := fileinfo.New(path)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fileInfos = append(fileInfos, f)
-		b, err := json.Marshal(fileInfos)
-		if err != nil {
-			log.Fatal(err)
-		}
-		_, err = w.Write(b)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return nil
-	})
+			return nil
+		})
+	}
+	b, err := json.Marshal(fileInfos)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = w.Write(b)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // PushFile puts the file to the server

@@ -1,7 +1,7 @@
 package distsync
 
 import (
-	"io"
+	"log"
 
 	"github.com/as27/ranssafe/fileinfo"
 )
@@ -21,7 +21,7 @@ type Distsyncer interface {
 	GetDistFileInfo() ([]fileinfo.File, error)
 	//SkipFile(string) bool
 	PushFile(string) error
-	GetFile(string) (io.Writer, error)
+	GetFile(string) error
 }
 
 // Distsync uses the Distsyncer interface to sync between different
@@ -29,14 +29,16 @@ type Distsyncer interface {
 func Distsync(ds Distsyncer) error {
 	distFileInfos, err := ds.GetDistFileInfo()
 	if err != nil {
-		return err
+		log.Fatalln(err)
+		//return err
 	}
 	for _, fi := range ds.GetSrcFileInfo() {
+		log.Println(fi)
 		switch {
 		case isPushFile(&fi, &distFileInfos):
 			ds.PushFile(fi.FilePath)
 		case isGetFile(&fi, &distFileInfos):
-			_, err := ds.GetFile(fi.FilePath)
+			err := ds.GetFile(fi.FilePath)
 			if err != nil {
 				return err
 			}
