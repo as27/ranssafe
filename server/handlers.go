@@ -76,5 +76,7 @@ func PushFile(w http.ResponseWriter, r *http.Request) {
 // GetServerBase returns the basePath from the server that the client is able
 // to build a rel path
 func GetServerBase(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s", filepath.ToSlash(Conf.ServerBackupFolder))
+	vars := mux.Vars(r)
+	pack := vars["package"]
+	fmt.Fprintf(w, "%s/%s", filepath.ToSlash(Conf.ServerBackupFolder), pack)
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"path/filepath"
 
@@ -24,6 +25,9 @@ var ServerFileInfoPath = "/fileinfo"
 
 // ServerPushPath is the relative path, when pushing a file to the server
 var ServerPushPath = "/push"
+
+// ServerBase is the path when the server returns the base file from the conf
+var ServerBase = "/serverbase"
 
 // Syncer is a implementation of the Distsyncer interface
 type Syncer struct {
@@ -44,7 +48,7 @@ type Syncer struct {
 func NewSyncer(serverURL string, rootPath string) *Syncer {
 	s := Syncer{
 		ServerURL: serverURL,
-		rootPath:  rootPath}
+		rootPath:  filepath.ToSlash(rootPath)}
 	s.newFileinfo = fileinfo.New
 	s.osOpen = os.Open
 	s.client = new(http.Client)
@@ -84,10 +88,20 @@ func (s *Syncer) GetDistFileInfo() ([]fileinfo.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Add the rootPath to the relative filepath of the server
+	// Replace the serverBase folder with the rootPath of the client
+	res, err = http.Get(s.ServerURL + ServerBase)
+	if err != nil {
+		return nil, err
+	}
+	b, err := ioutil.ReadAll(res.Body)
+	serverBase := string(b)
+	res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
 	for i := range fi {
-		fi[i].FilePath = filepath.ToSlash(s.rootPath + "/" + fi[i].FilePath)
-		log.Println(fi[i].FilePath)
+		fi[i].FilePath = strings.Replace(fi[i].FilePath, serverBase, s.rootPath, 1)
+
 	}
 	return fi, nil
 }

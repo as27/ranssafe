@@ -14,6 +14,7 @@ var FileInfoPath = "/fileinfo"
 // PushPath describes the path when a file is pushed to the server
 var PushPath = "/push"
 
+// ServerBase is the path when the server returns the base file from the conf
 var ServerBase = "/serverbase"
 
 func main() {

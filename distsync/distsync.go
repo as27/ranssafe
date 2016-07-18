@@ -33,7 +33,7 @@ func Distsync(ds Distsyncer) error {
 		//return err
 	}
 	for _, fi := range ds.GetSrcFileInfo() {
-		log.Println(fi)
+
 		switch {
 		case isPushFile(&fi, &distFileInfos):
 			ds.PushFile(fi.FilePath)
