@@ -14,9 +14,12 @@ var FileInfoPath = "/fileinfo"
 // PushPath describes the path when a file is pushed to the server
 var PushPath = "/push"
 
+var ServerBase = "/serverbase"
+
 func main() {
 	LoadConf()
 	router := mux.NewRouter()
+	router.HandleFunc(`/{package}`+ServerBase, GetServerBase).Methods("GET")
 	router.HandleFunc(`/{package}`+FileInfoPath, GetFileInfo).Methods("GET")
 	router.HandleFunc(`/{package}`+PushPath+`/{filep:.*}`, PushFile).Methods("PUT")
 	log.Println("Starting server at port " + Conf.ServerPort)

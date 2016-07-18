@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -70,4 +71,10 @@ func PushFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// GetServerBase returns the basePath from the server that the client is able
+// to build a rel path
+func GetServerBase(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "%s", filepath.ToSlash(Conf.ServerBackupFolder))
 }

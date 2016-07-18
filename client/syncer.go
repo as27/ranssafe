@@ -30,12 +30,13 @@ type Syncer struct {
 	// ServerAdress is the http adess of the server including
 	// the port and the package
 	// https://localhost:1234/mypackage
-	ServerURL   string
-	files       []fileinfo.File
-	rootPath    string
-	newFileinfo func(string) (fileinfo.File, error)
-	osOpen      func(name string) (*os.File, error)
-	client      *http.Client
+	ServerURL      string
+	files          []fileinfo.File
+	rootPath       string
+	serverRootPath string
+	newFileinfo    func(string) (fileinfo.File, error)
+	osOpen         func(name string) (*os.File, error)
+	client         *http.Client
 }
 
 // NewSyncer takes a serverAdress and returns a pointer to a
@@ -83,6 +84,11 @@ func (s *Syncer) GetDistFileInfo() ([]fileinfo.File, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Add the rootPath to the relative filepath of the server
+	for i := range fi {
+		fi[i].FilePath = filepath.ToSlash(s.rootPath + "/" + fi[i].FilePath)
+		log.Println(fi[i].FilePath)
+	}
 	return fi, nil
 }
 
@@ -98,9 +104,9 @@ func (s *Syncer) PushFile(fpath string) error {
 		return err
 	}
 	v := url.Values{}
-	v.Set("timestamp", strconv.Itoa(fi.Timestamp))
+	v.Set("timestamp", strconv.FormatInt(fi.Timestamp, 10))
 	u.RawQuery = v.Encode()
-	log.Println(u.String())
+	//log.Println(u.String())
 	// Open the local file
 	fileReader, err := os.Open(fpath)
 	defer fileReader.Close()
