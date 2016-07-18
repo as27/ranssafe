@@ -24,7 +24,7 @@ func GetFileInfo(w http.ResponseWriter, r *http.Request) {
 		pack)
 	log.Println("Walk for: " + rootPath)
 	_, err := os.Stat(rootPath)
-	if os.IsExist(err) {
+	if os.IsNotExist(err) == false {
 		filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 			if info.IsDir() {
 				return nil
