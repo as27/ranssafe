@@ -11,7 +11,6 @@ import (
 
 	"github.com/as27/ranssafe/fileinfo"
 	"github.com/gorilla/mux"
-	"github.com/lyckade/gonetsync/file"
 )
 
 // GetFileInfo responses with fileinfos to a package
@@ -66,7 +65,7 @@ func PushFile(w http.ResponseWriter, r *http.Request) {
 	_, err = io.Copy(f, r.Body)
 	f.Close()
 	r.Body.Close()
-	timets, _ := time.Parse(file.TimestampLayout, r.FormValue("timestamp"))
+	timets, _ := time.Parse(fileinfo.TimestampLayout, r.FormValue("timestamp"))
 	err = os.Chtimes(fp, timets, timets)
 	if err != nil {
 		log.Fatal(err)

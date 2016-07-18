@@ -129,5 +129,5 @@ func (s *Syncer) relPath(fp string) string {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	return rp
+	return filepath.ToSlash(rp)
 }

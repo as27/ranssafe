@@ -13,7 +13,7 @@ type File struct {
 	//FilePath is the path to the file starting at the root folder of each package
 	FilePath string `json:"filePath"`
 	//Timestamp represents the last modification time
-	Timestamp int `json:"timestamp"`
+	Timestamp int64 `json:"timestamp"`
 }
 
 // TimestampLayout defines the timestamps
@@ -28,13 +28,13 @@ func New(fp string) (File, error) {
 	return f, err
 }
 
-func getTimestamp(fp string) (int, error) {
+func getTimestamp(fp string) (int64, error) {
 	fi, err := os.Stat(fp)
 	if err != nil {
 		return 0, err
 	}
 	lastMod := fi.ModTime()
-	return strconv.Atoi(lastMod.Format(TimestampLayout))
+	return strconv.ParseInt(lastMod.Format(TimestampLayout), 10, 64)
 }
 
 // The Encoder interface represents a Encode method of any encoding library
