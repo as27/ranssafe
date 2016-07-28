@@ -24,6 +24,7 @@ type Options struct {
 	ServerURL string   `yaml:"ServerURL"`
 	Packages  []Pack   `yaml:"Packages"`
 	SkipDir   []string `yaml:"SkipDir"`
+	MaxSize   int64    `yaml:"MaxSize"`
 }
 
 func init() {

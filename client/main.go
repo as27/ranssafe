@@ -29,9 +29,11 @@ func makeSyncer(pack Pack) *Syncer {
 			}
 			return nil
 		}
-		err = syncer.AddFile(path)
-		if err != nil {
-			log.Fatal(err)
+		if skipFile(path, info) != true {
+			err = syncer.AddFile(path)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 		return nil
 	})
@@ -43,6 +45,13 @@ func skipDir(p string) bool {
 		if strings.Contains(p, d) {
 			return true
 		}
+	}
+	return false
+}
+
+func skipFile(p string, info os.FileInfo) bool {
+	if info.Size() > Conf.MaxSize {
+		return true
 	}
 	return false
 }
