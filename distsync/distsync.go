@@ -2,6 +2,7 @@ package distsync
 
 import (
 	"log"
+	"math"
 
 	"github.com/as27/ranssafe/fileinfo"
 )
@@ -28,6 +29,7 @@ type Distsyncer interface {
 // locations.
 func Distsync(ds Distsyncer) error {
 	distFileInfos, err := ds.GetDistFileInfo()
+	log.Printf("%d files in dist", len(distFileInfos))
 	if err != nil {
 		log.Fatalln(err)
 		//return err
@@ -50,9 +52,11 @@ func Distsync(ds Distsyncer) error {
 func isPushFile(fi *fileinfo.File, fInfos *[]fileinfo.File) bool {
 	df, ok := getDistFile(fi, fInfos)
 	if ok == false {
+		log.Println("Not in DistFiles")
 		return true
 	}
-	if fi.Timestamp > df.Timestamp {
+	if math.Abs(float64(fi.Timestamp-df.Timestamp)) > 20 {
+		log.Printf("\n%d <-Local TS\n%d <-Dist TS", fi.Timestamp, df.Timestamp)
 		return true
 	}
 	return false

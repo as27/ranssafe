@@ -59,6 +59,7 @@ func PushFile(w http.ResponseWriter, r *http.Request) {
 		pack,
 		filep)
 	os.MkdirAll(filepath.Dir(fp), 0777)
+	//filepath.Dir liefert hier nicht immer eine directory
 	f, err := os.Create(fp)
 	if err != nil {
 		log.Fatal(err)

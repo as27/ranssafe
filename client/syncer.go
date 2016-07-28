@@ -113,14 +113,14 @@ func (s *Syncer) PushFile(fpath string) error {
 	if err != nil {
 		return err
 	}
-	u, err := url.Parse(s.ServerURL + ServerPushPath + "/" + s.relPath(fpath))
-	if err != nil {
-		return err
-	}
+	u := &url.URL{}
+	u.Path = s.ServerURL + ServerPushPath + "/" + s.relPath(fpath)
+
 	v := url.Values{}
 	v.Set("timestamp", strconv.FormatInt(fi.Timestamp, 10))
 	u.RawQuery = v.Encode()
-	//log.Println(u.String())
+	log.Println(u.String())
+	flog.Println(u.String())
 	// Open the local file
 	fileReader, err := os.Open(fpath)
 	defer fileReader.Close()
