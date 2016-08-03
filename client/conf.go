@@ -29,7 +29,8 @@ type Options struct {
 }
 
 func init() {
-	b, err := ioutil.ReadFile(ConfFile)
+	flag.Parse()
+	b, err := ioutil.ReadFile(*ConfFile)
 	if err != nil {
 		log.Fatal(err)
 	}
