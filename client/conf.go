@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"log"
 
@@ -8,7 +9,7 @@ import (
 )
 
 // ConfFile is the path to the configuration file
-var ConfFile = "conf.yaml"
+var ConfFile = flag.String("conf", "conf.yaml", "Path to the conf file")
 
 // Conf stores the configuration
 var Conf Options
